@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-yellow-50 overflow-x-hidden text-yellow-900;
+    background-image: url('https://images.unsplash.com/photo-1546484396-fb3fc6f95f98');
+    background-size: cover;
+    background-repeat: repeat;
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-pirata text-yellow-900;
+  }
+
+  input, select, textarea {
+    @apply bg-yellow-50/90 border border-yellow-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500;
+  }
+
+  button {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .parchment-cell {
+    @apply bg-yellow-50/95 p-4 rounded-lg shadow-md mb-4 border border-yellow-200/50 backdrop-blur-sm;
+  }
+
+  .stat-label {
+    @apply font-pirata text-yellow-800 text-sm;
+  }
+
+  .stat-value {
+    @apply font-bold text-yellow-900 text-lg;
+  }
+
+  .primary-button {
+    @apply bg-yellow-700 text-yellow-50 px-4 py-2 rounded hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .secondary-button {
+    @apply bg-yellow-100 text-yellow-800 px-4 py-2 rounded hover:bg-yellow-200 border border-yellow-300;
+  }
+
+  .danger-button {
+    @apply bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 border border-red-300;
+  }
+
+  .input-group {
+    @apply flex flex-col space-y-1;
+  }
+
+  .input-label {
+    @apply text-sm font-medium text-yellow-800;
+  }
+
+  .badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-yellow-200 text-yellow-800;
+  }
+
+  .badge-secondary {
+    @apply bg-yellow-100 text-yellow-700;
+  }
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pirata+One&family=Bilbo+Swash+Caps&display=swap');
+
+:root {
+    --primary-color: #c19a6b;
+    --background-color: #fef9e7;
+    --text-color: #2c1810;
+    --font-size-base: calc((1vw + 1vh) * 0.75);
+}
+
+/* Custom styles that can't be easily replicated with Tailwind */
+.checkbox-group input[type="checkbox"] {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+}
