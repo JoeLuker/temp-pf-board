@@ -1,9 +1,7 @@
 <!-- src/lib/components/shared/layout/ParchmentCell.svelte -->
 <script lang="ts">
-	let isCollapsed = $state(false);
 	interface Props {
 		title?: string | undefined;
-		collapsible?: boolean;
 		padding?: boolean;
 		className?: string;
 		children?: import('svelte').Snippet;
@@ -11,17 +9,10 @@
 
 	let {
 		title = undefined,
-		collapsible = false,
 		padding = true,
 		className = '',
 		children
 	}: Props = $props();
-
-	function toggleCollapse() {
-		if (collapsible) {
-			isCollapsed = !isCollapsed;
-		}
-	}
 
 	let containerClasses = $derived(
 		`
@@ -35,7 +26,7 @@
       transition-all
       duration-200
       hover:shadow-lg
-      ${padding ? 'p-4' : ''}
+      ${padding ? 'p-2 sm:p-4' : ''}
       ${className}
   `.trim()
 	);
@@ -45,58 +36,20 @@
       transition-all 
       duration-200 
       ease-in-out
-      ${isCollapsed ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}
+      h-auto opacity-100
   `.trim()
 	);
 </script>
 
-{#if collapsible}
-	<div class={containerClasses} data-testid="parchment-cell">
-		<div class="contents">
-			{#if title}
-				<div class="flex items-center justify-between mb-4">
-					<h3 class="text-xl font-pirata text-yellow-900">{title}</h3>
-					<button
-						class="text-yellow-700 hover:text-yellow-900 transition-colors cursor-pointer"
-						onclick={toggleCollapse}
-						onkeydown={(e) => e.key === 'Enter' && toggleCollapse()}
-						aria-expanded={!isCollapsed}
-						aria-label={isCollapsed ? 'Expand section' : 'Collapse section'}
-						type="button"
-					>
-						<svg
-							class={`w-6 h-6 transform transition-transform duration-200 ${isCollapsed ? 'rotate-180' : ''}`}
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M19 9l-7 7-7-7"
-							/>
-						</svg>
-					</button>
-				</div>
-			{/if}
+<div class={containerClasses} data-testid="parchment-cell">
+	<!-- {#if title}
+		<h3 class="text-lg sm:text-xl font-pirata text-yellow-900 mb-2 sm:mb-4">{title}</h3>
+	{/if} -->
 
-			<div class={contentClasses}>
-				{@render children?.()}
-			</div>
-		</div>
+	<div class={contentClasses}>
+		{@render children?.()}
 	</div>
-{:else}
-	<div class={containerClasses} data-testid="parchment-cell">
-		{#if title}
-			<h3 class="text-xl font-pirata text-yellow-900 mb-4">{title}</h3>
-		{/if}
-
-		<div class={contentClasses}>
-			{@render children?.()}
-		</div>
-	</div>
-{/if}
+</div>
 
 <style>
 	[data-testid='parchment-cell']::before {

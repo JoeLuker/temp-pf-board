@@ -11,9 +11,9 @@
 	}
 </script>
 
-<div class="parchment-cell">
-	<h3 class="text-xl font-bold mb-4">Attributes</h3>
-	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="parchment-cell p-2">
+	<h3 class="text-lg font-bold mb-2">Attributes</h3>
+	<div class="grid grid-cols-2 gap-2">
 		{#each Object.entries(characterStore.baseAttributes) as [ability, score]}
 			<AbilityScore
 				{ability}

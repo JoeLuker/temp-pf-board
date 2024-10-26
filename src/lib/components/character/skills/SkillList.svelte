@@ -75,8 +75,6 @@
 		variant: 'default' | 'light' | 'dark' = 'default'
 	): string {
 		const ability = SKILL_TO_ABILITY_MAP[skillName] as keyof Abilities;
-		console.log('Getting color for skill:', skillName);
-		console.log('Mapped ability:', ability);
 
 		const baseColors = {
 			str: 'red',
@@ -91,14 +89,12 @@
 		const opacity = variant === 'light' ? '50' : variant === 'dark' ? '200' : '100';
 
 		const colorClass = `bg-${baseColor}-${opacity}`;
-		console.log('Generated color class:', colorClass);
 		return colorClass;
 	}
 
 	function getSkillRowClass(index: number, skillName: SkillKey): string {
 		const isEven = index % 2 === 0;
 		const abilityColor = getAbilityColor(skillName, isEven ? 'light' : 'dark');
-		console.log('Row class for skill:', skillName, 'Color:', abilityColor);
 		return `${abilityColor} p-2 rounded-md`;
 	}
 </script>

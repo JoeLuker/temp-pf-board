@@ -50,9 +50,9 @@
             <div class="space-y-2">
                 {#each spells as spell}
                     <div class="flex items-center justify-between p-2 bg-yellow-50 rounded border border-yellow-200">
-                        <span class="font-pirata text-lg text-yellow-900">{spell.name}</span>
+                        <span class="font-pirata text-lg text-yellow-900 truncate">{spell.name}</span>
                         <button
-                            class="text-red-500 hover:text-red-700"
+                            class="text-red-500 hover:text-red-700 ml-2 flex-shrink-0"
                             onclick={() => removeSpell(spell.name)}
                         >
                             ×
@@ -69,10 +69,10 @@
             onsubmit={handleOnAddSpell}
             class="space-y-4"
         >
-            <div class="flex gap-4">
+            <div class="flex flex-wrap gap-2">
                 <select
                     bind:value={selectedSpellLevel}
-                    class="p-2 rounded border border-yellow-200 bg-yellow-50"
+                    class="p-2 rounded border border-yellow-200 bg-yellow-50 w-32"
                 >
                     {#each Array.from({ length: 6 }) as _, i}
                         <option value={i + 1}>Level {i + 1}</option>
@@ -81,7 +81,7 @@
 
                 <select
                     bind:value={selectedSpellName}
-                    class="flex-1 p-2 rounded border border-yellow-200 bg-yellow-50"
+                    class="flex-1 min-w-[200px] p-2 rounded border border-yellow-200 bg-yellow-50"
                 >
                     <option value="">Select a spell</option>
                     {#each availableSpells as spell}
@@ -91,7 +91,7 @@
 
                 <button
                     type="submit"
-                    class="px-4 py-2 bg-yellow-700 text-yellow-50 rounded hover:bg-yellow-600 transition-colors"
+                    class="px-4 py-2 bg-yellow-700 text-yellow-50 rounded hover:bg-yellow-600 transition-colors flex-shrink-0"
                     disabled={!selectedSpellName}
                 >
                     Add Spell

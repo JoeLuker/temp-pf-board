@@ -1,6 +1,5 @@
 <!-- src/lib/components/shared/display/StatBlock.svelte -->
 <script lang="ts">
-	import type { StatBlockProps } from '../types';
 	import ModifierPill from '../inputs/ModifierPill.svelte';
 
 	interface Props {

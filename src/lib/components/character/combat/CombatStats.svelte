@@ -7,33 +7,29 @@
 
 <div class="space-y-4">
 	<ParchmentCell title="Combat Statistics">
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-			<!-- AC Section -->
-			<div class="bg-yellow-100/50 rounded-lg p-3 border border-yellow-200">
-				<div class="stat-label">Armor Class</div>
+		<div class="flex flex-wrap gap-2">
+			<div class="flex-1 min-w-[120px] bg-yellow-100/50 rounded-lg p-2 border border-yellow-200">
+				<div class="stat-label">AC</div>
 				<div class="stat-value">{combatStats.ac.total}</div>
-				<div class="flex space-x-4 mt-1 text-sm text-yellow-700">
-					<span>Touch: {combatStats.ac.touch}</span>
+				<div class="flex gap-2 text-xs text-yellow-700">
+					<span>T: {combatStats.ac.touch}</span>
 					<span>FF: {combatStats.ac.flatFooted}</span>
 				</div>
 			</div>
 
-			<!-- BAB Section -->
-			<div class="bg-yellow-100/50 rounded-lg p-3 border border-yellow-200">
-				<div class="stat-label">Base Attack</div>
+			<div class="flex-1 min-w-[120px] bg-yellow-100/50 rounded-lg p-2 border border-yellow-200">
+				<div class="stat-label">BAB</div>
 				<div class="stat-value">+{combatStats.attacks.bab}</div>
 			</div>
 
-			<!-- CMD/CMB Section -->
-			<div class="bg-yellow-100/50 rounded-lg p-3 border border-yellow-200">
-				<div class="stat-label">Combat Maneuvers</div>
-				<div class="flex justify-between">
+			<div class="flex-1 min-w-[120px] bg-yellow-100/50 rounded-lg p-2 border border-yellow-200">
+				<div class="flex justify-between gap-4">
 					<div>
-						<span class="text-sm text-yellow-700">CMD</span>
+						<div class="stat-label">CMD</div>
 						<div class="stat-value">{combatStats.attacks.cmd}</div>
 					</div>
 					<div>
-						<span class="text-sm text-yellow-700">CMB</span>
+						<div class="stat-label">CMB</div>
 						<div class="stat-value">+{combatStats.attacks.cmb}</div>
 					</div>
 				</div>
