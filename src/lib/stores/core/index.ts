@@ -1,2 +1,2 @@
 // src/lib/stores/core/index.ts
-export * from './character';
+export * from './character.svelte';

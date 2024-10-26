@@ -1,12 +1,15 @@
 import adapter from '@sveltejs/adapter-vercel';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import preprocess from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+	preprocess: preprocess({
+		postcss: true,
+		typescript: true
+	}),
 	kit: {
 		adapter: adapter()
-	},
-	preprocess: vitePreprocess()
+	}
 };
 
 export default config;

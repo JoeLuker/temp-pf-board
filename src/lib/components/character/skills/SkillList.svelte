@@ -1,142 +1,194 @@
-<!-- @migration-task Error while migrating Svelte code: 'onsubmit|preventDefault' is not a valid attribute name -->
-<!-- src/lib/components/character/skills/SkillList.svelte -->
 <script lang="ts">
-    import { characterState, addSkill } from '$lib/stores/core/character';
-    import { abilityModifiersDerived } from '$lib/stores/derived';
-    import { SKILL_LIST, ALCHEMIST_CLASS_SKILLS } from '$lib/data/rules/skills';
-    
-    import { calculateSkillModifier } from '$lib/data/rules/game-rules';
-    import ParchmentCell from '$lib/components/shared/layout/ParchmentCell.svelte';
-    import type { Skill } from '$lib/types/character';
+	import { characterStore, addSkill, removeSkill } from '$lib/stores/core/character.svelte';
+	import { getAbilityModifiers } from '$lib/stores/derived/index.svelte';
+	import {
+		skillList,
+		alchemistClassSkills,
+		SKILL_TO_ABILITY_MAP,
+		SkillKey
+	} from '$lib/data/rules/skills.svelte';
+	import { calculateSkillModifier } from '$lib/data/rules/game-rules';
+	import ParchmentCell from '$lib/components/shared/layout/ParchmentCell.svelte';
+	import type { Skill, Abilities } from '$lib/types/character';
 
-    let newSkillName = '';
-    let newSkillRanks = 0;
+	let newSkillName = $state<SkillKey | ''>('');
+	let newSkillRanks = $state(0);
+	let availableSkills = $state<SkillKey[]>([]);
+	let maxRanks = $state(0);
 
-    import type { SkillKey } from '$lib/types/skills';
+	const abilityModifiers = $derived(getAbilityModifiers());
 
-    function addNewSkill() {
-        if (newSkillName && newSkillRanks > 0) {
-            const isClassSkill = ALCHEMIST_CLASS_SKILLS.includes(newSkillName as SkillKey);
-            addSkill({
-                name: newSkillName,
-                ranks: newSkillRanks,
-                isClassSkill
-            });
-            newSkillName = '';
-            newSkillRanks = 0;
-        }
-    }
+	$effect(() => {
+		availableSkills = skillList.filter(
+			(skill) => !characterStore.skills.some((s) => s.name === skill)
+		);
+	});
 
-    function getAbilityModForSkill(skillName: string): number {
-        // Map skills to their key abilities
-        const skillAbilities: Record<string, keyof Abilities> = {
-            'Acrobatics': 'dex',
-            'Appraise': 'int',
-            'Bluff': 'cha',
-            'Climb': 'str',
-            'Craft': 'int',
-            'Diplomacy': 'cha',
-            'Disable Device': 'dex',
-            'Disguise': 'cha',
-            'Escape Artist': 'dex',
-            'Fly': 'dex',
-            'Handle Animal': 'cha',
-            'Heal': 'wis',
-            'Intimidate': 'cha',
-            'Knowledge': 'int',
-            'Linguistics': 'int',
-            'Perception': 'wis',
-            'Perform': 'cha',
-            'Profession': 'wis',
-            'Ride': 'dex',
-            'Sense Motive': 'wis',
-            'Sleight of Hand': 'dex',
-            'Spellcraft': 'int',
-            'Stealth': 'dex',
-            'Survival': 'wis',
-            'Swim': 'str',
-            'Use Magic Device': 'cha'
-        };
+	$effect(() => {
+		maxRanks = characterStore.level;
+	});
 
-        const ability = skillAbilities[skillName] || 'int';
-        return abilityModifiersDerived[ability] || 0;
-    }
+	function addNewSkill() {
+		if (newSkillName && newSkillRanks > 0) {
+			const isClassSkill = alchemistClassSkills.includes(newSkillName);
+			addSkill({
+				name: newSkillName,
+				ranks: newSkillRanks,
+				isClassSkill
+			});
+			newSkillName = '';
+			newSkillRanks = 0;
+		}
+	}
 
-    $: availableSkills = Object.keys(SKILL_LIST).filter(
-        skill => !$characterState.skills.some(s => s.name === skill)
-    );
+	function handleOnAddSkill(event: Event) {
+		event.preventDefault();
+		addNewSkill();
+	}
 
-    $: maxRanks = $characterState.level;
+	function updateSkillRanks(skill: Skill, newRanks: number) {
+		if (newRanks <= 0) {
+			removeSkill(skill.name);
+		} else {
+			addSkill({
+				...skill,
+				ranks: newRanks
+			});
+		}
+	}
+
+	function getAbilityModForSkill(skillName: SkillKey): number {
+		const ability = SKILL_TO_ABILITY_MAP[skillName];
+		return abilityModifiers[ability] || 0;
+	}
+
+	function formatSkillName(skill: SkillKey): string {
+		return skill
+			.replace('.', ' ')
+			.split(' ')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
+	}
+
+	function getAbilityColor(
+		skillName: SkillKey,
+		variant: 'default' | 'light' | 'dark' = 'default'
+	): string {
+		const ability = SKILL_TO_ABILITY_MAP[skillName] as keyof Abilities;
+		console.log('Getting color for skill:', skillName);
+		console.log('Mapped ability:', ability);
+
+		const baseColors = {
+			str: 'red',
+			dex: 'green',
+			con: 'orange',
+			int: 'blue',
+			wis: 'purple',
+			cha: 'pink'
+		};
+
+		const baseColor = baseColors[ability] || 'yellow';
+		const opacity = variant === 'light' ? '50' : variant === 'dark' ? '200' : '100';
+
+		const colorClass = `bg-${baseColor}-${opacity}`;
+		console.log('Generated color class:', colorClass);
+		return colorClass;
+	}
+
+	function getSkillRowClass(index: number, skillName: SkillKey): string {
+		const isEven = index % 2 === 0;
+		const abilityColor = getAbilityColor(skillName, isEven ? 'light' : 'dark');
+		console.log('Row class for skill:', skillName, 'Color:', abilityColor);
+		return `${abilityColor} p-2 rounded-md`;
+	}
 </script>
 
-<div class="space-y-4">
-    <!-- Existing Skills -->
-    {#each $characterState.skills as skill}
-        <ParchmentCell title={skill.name}>
-            <div class="flex items-center justify-between">
-                <div>
-                    <h4 class="font-pirata text-lg text-yellow-900">{skill.name}</h4>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-yellow-700">
-                            Ranks: {skill.ranks}
-                        </span>
-                        {#if skill.isClassSkill}
-                            <span class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded">
-                                Class Skill
-                            </span>
-                        {/if}
-                    </div>
-                </div>
-                <div class="text-xl font-bold text-yellow-900">
-                    {#if calculateSkillModifier(
-                        skill.ranks,
-                        getAbilityModForSkill(skill.name),
-                        skill.isClassSkill
-                    ) >= 0}+{/if}
-                    {calculateSkillModifier(
-                        skill.ranks,
-                        getAbilityModForSkill(skill.name),
-                        skill.isClassSkill
-                    )}
-                </div>
-            </div>
-        </ParchmentCell>
-    {/each}
+<div class="space-y-2">
+	{#each characterStore.skills as skill, index (skill.name)}
+		<ParchmentCell
+			padding={false}
+			className={getAbilityColor(skill.name as SkillKey, index % 2 === 0 ? 'light' : 'dark')}
+		>
+			<div class="p-2">
+				<div class="flex items-center justify-between">
+					<div class="flex-1">
+						<h4 class="font-pirata text-base text-yellow-900">
+							{formatSkillName(skill.name as SkillKey)}
+						</h4>
+						<div class="flex flex-wrap gap-2 items-center mt-1">
+							<div class="flex items-center gap-1">
+								<span class="text-xs text-yellow-700">Ranks:</span>
+								<input
+									type="number"
+									value={skill.ranks}
+									min="0"
+									max={maxRanks}
+									class="w-12 p-1 text-sm rounded border border-yellow-200 bg-yellow-50"
+									onchange={(e) => updateSkillRanks(skill, parseInt(e.currentTarget.value))}
+								/>
+							</div>
+							{#if skill.isClassSkill}
+								<span class="bg-yellow-200 text-yellow-800 text-xs px-1.5 py-0.5 rounded">CS</span>
+							{/if}
+						</div>
+					</div>
+					<div class="text-lg font-bold text-yellow-900 ml-2">
+						{#if calculateSkillModifier(skill.ranks, getAbilityModForSkill(skill.name as SkillKey), skill.isClassSkill) >= 0}+{/if}
+						{calculateSkillModifier(
+							skill.ranks,
+							getAbilityModForSkill(skill.name as SkillKey),
+							skill.isClassSkill
+						)}
+					</div>
+				</div>
+			</div>
+		</ParchmentCell>
+	{/each}
 
-    <!-- Add New Skill -->
-    <ParchmentCell>
-        <form 
-            onsubmit|preventDefault={addNewSkill}
-            class="space-y-4"
-        >
-            <div class="flex gap-4">
-                <select
-                    bind:value={newSkillName}
-                    class="flex-1 p-2 rounded border border-yellow-200 bg-yellow-50"
-                >
-                    <option value="">Select a skill</option>
-                    {#each availableSkills as skill}
-                        <option value={skill}>{skill}</option>
-                    {/each}
-                </select>
+	<ParchmentCell padding={false}>
+		<form onsubmit={handleOnAddSkill} class="p-2">
+			<div class="flex flex-col sm:flex-row gap-2">
+				<select
+					bind:value={newSkillName}
+					class="flex-1 p-1.5 text-sm rounded border border-yellow-200 bg-yellow-50"
+				>
+					<option value="">Select a skill</option>
+					{#each availableSkills as skill}
+						<option value={skill}>{formatSkillName(skill)}</option>
+					{/each}
+				</select>
 
-                <input
-                    type="number"
-                    bind:value={newSkillRanks}
-                    min="0"
-                    max={maxRanks}
-                    placeholder="Ranks"
-                    class="w-24 p-2 rounded border border-yellow-200 bg-yellow-50"
-                />
+				<div class="flex gap-2">
+					<input
+						type="number"
+						bind:value={newSkillRanks}
+						min="0"
+						max={maxRanks}
+						placeholder="Ranks"
+						class="w-20 p-1.5 text-sm rounded border border-yellow-200 bg-yellow-50"
+					/>
 
-                <button
-                    type="submit"
-                    class="px-4 py-2 bg-yellow-700 text-yellow-50 rounded hover:bg-yellow-600 transition-colors"
-                    disabled={!newSkillName || newSkillRanks <= 0}
-                >
-                    Add Skill
-                </button>
-            </div>
-        </form>
-    </ParchmentCell>
+					<button
+						type="submit"
+						class="px-3 py-1.5 bg-yellow-700 text-yellow-50 text-sm rounded hover:bg-yellow-600 transition-colors"
+						disabled={!newSkillName || newSkillRanks <= 0}
+					>
+						Add
+					</button>
+				</div>
+			</div>
+		</form>
+	</ParchmentCell>
 </div>
+
+<style>
+	:root {
+		--color-red: 254 226 226;
+		--color-green: 220 252 231;
+		--color-orange: 254 235 200;
+		--color-blue: 219 234 254;
+		--color-purple: 237 233 254;
+		--color-pink: 252 231 243;
+		--color-yellow: 254 249 195;
+	}
+</style>

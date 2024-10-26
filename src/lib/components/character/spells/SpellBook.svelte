@@ -1,14 +1,15 @@
-<!-- @migration-task Error while migrating Svelte code: 'onsubmit|preventDefault' is not a valid attribute name -->
-<!-- src/lib/components/character/spells/SpellBook.svelte -->
 <script lang="ts">
-    import { characterState, addSpell, removeSpell } from '$lib/stores/core/character';
+    import { characterStore, addSpell, removeSpell } from '$lib/stores/core/character.svelte';
     import { alchemistSpells } from '$lib/data/rules/spells';
     import ParchmentCell from '$lib/components/shared/layout/ParchmentCell.svelte';
     import type { SpellInfo } from '$lib/types/character';
-    import { derived } from 'svelte';
+    import type { Spell } from '$lib/types/spells';
     
-    let selectedSpellLevel = 1;
-    let selectedSpellName = '';
+    // Explicit type annotations for runes
+    let selectedSpellLevel = $state<number>(1);
+    let selectedSpellName = $state<string>('');
+    let spellsByLevel = $state<Record<number, SpellInfo[]>>({});
+    let availableSpells = $state<Spell[]>([]);
     
     function addNewSpell() {
         if (selectedSpellName) {
@@ -20,26 +21,31 @@
         }
     }
     
-    const spellsByLevel = derived(characterState, $char => {
+    function handleOnAddSpell(event: Event) {
+        event.preventDefault();
+        addNewSpell();
+    }
+    
+    $effect(() => {
         const acc: Record<number, SpellInfo[]> = {};
-        $char.spellsKnown.forEach(spell => {
+        characterStore.spellsKnown.forEach(spell => {
             if (!acc[spell.level]) acc[spell.level] = [];
             acc[spell.level].push(spell);
         });
-        return acc;
+        spellsByLevel = acc;
     });
     
-    const availableSpells = derived([characterState, () => selectedSpellLevel], ([$char, $level]) => 
-        alchemistSpells.filter(spell => 
-            spell.level === $level && 
-            !$char.spellsKnown.some(known => known.name === spell.name)
-        )
-    );
+    $effect(() => {
+        availableSpells = alchemistSpells.filter(spell => 
+            spell.level === selectedSpellLevel && 
+            !characterStore.spellsKnown.some(known => known.name === spell.name)
+        );
+    });
 </script>
 
 <div class="space-y-4">
     <!-- Spell Levels -->
-    {#each Object.entries($spellsByLevel) as [level, spells]}
+    {#each Object.entries(spellsByLevel) as [level, spells]}
         <ParchmentCell title={`Level ${level} Spells`}>
             <div class="space-y-2">
                 {#each spells as spell}
@@ -60,7 +66,7 @@
     <!-- Add New Spell -->
     <ParchmentCell>
         <form
-            onsubmit|preventDefault={addNewSpell}
+            onsubmit={handleOnAddSpell}
             class="space-y-4"
         >
             <div class="flex gap-4">
@@ -68,7 +74,7 @@
                     bind:value={selectedSpellLevel}
                     class="p-2 rounded border border-yellow-200 bg-yellow-50"
                 >
-                    {#each Array(6) as _, i}
+                    {#each Array.from({ length: 6 }) as _, i}
                         <option value={i + 1}>Level {i + 1}</option>
                     {/each}
                 </select>
@@ -78,7 +84,7 @@
                     class="flex-1 p-2 rounded border border-yellow-200 bg-yellow-50"
                 >
                     <option value="">Select a spell</option>
-                    {#each $availableSpells as spell}
+                    {#each availableSpells as spell}
                         <option value={spell.name}>{spell.name}</option>
                     {/each}
                 </select>

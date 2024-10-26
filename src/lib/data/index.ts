@@ -6,7 +6,7 @@ export * from './equipment/wondrous';
 // Rules
 export * from './rules/bonus-calculation';
 export * from './rules/game-rules';
-export * from './rules/skills';
+export * from './rules/skills.svelte';
 export * from './rules/spells';
 
 // Initial data
